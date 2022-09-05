@@ -5,22 +5,28 @@ import keystoneclient.v3 as ksc
 import novaclient.v2 as nvc
 import cinderclient.v3 as cdc
 
+import openstack.connection as osc
+
+import openstack.identity.v3 as oi
 import openstackcheck.nova as nv
 import openstackcheck.glance as gl
 import openstackcheck.keystone as ks
 import openstackcheck.cinder as cd
 
+from openstackcheck.auth import get_admin_auth
 from openstackcheck.base import BaseContext
 
 class OSCContext(BaseContext):
+    admin: osc.Connection
+
     ks: ksc.Client
-    domain: ksc.domains.Domain
-    project: ksc.projects.Project
+    domain: oi.endpoint.Endpoint
+    project: oi.project.Project
     username: str
     password: str
-    user: ksc.users.User
+    user: oi.user.User
 
-    auth: Session
+    auth: osc.Connection
 
     image_id: str
 
@@ -34,11 +40,12 @@ class OSCContext(BaseContext):
 
 def main():
     with BaseContext() as ctx:
-        ctx.acquire_res('ks', ks.get_keystone())
+        ctx.acquire_res('admin', get_admin_auth())
         domain = ctx.acquire('domain', ks.get_domain(ctx))
         project = ctx.acquire('project', ks.get_project(ctx))
         user = ctx.acquire('user', ks.get_user(ctx))
-        auth = ctx.acquire('auth', ks.get_auth(ctx))
+        auth = ctx.acquire_res('auth', ks.get_auth(ctx))
+        return
 
         image_id = ctx.acquire_res('image_id', gl.get_image_id(ctx))
         cinder = ctx.acquire('cinder', cd.get_cinder(ctx))
@@ -46,3 +53,6 @@ def main():
 
         nova = ctx.acquire('nova', nv.get_nova(ctx))
         nova_keypair = ctx.acquire('nova_keypair', nv.get_keypair(ctx))
+
+if __name__ == '__main__':
+    main()

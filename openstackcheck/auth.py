@@ -1,4 +1,4 @@
-from poenstack import connection
+from openstack import connection
 
 from openstackcheck.config import env, keystone_url
 
@@ -25,4 +25,4 @@ def get_admin_auth():
         auth['username'] = keystone_username
         auth['password'] = keystone_password
 
-    return connection.Connection(auth=auth, identity_interface='internal')
+    return connection.Connection(auth=auth, identity_interface='public')

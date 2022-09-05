@@ -7,38 +7,41 @@ from keystoneauth1.identity import v3
 
 import openstackcheck.config as cfg
 
-from openstackcheck.auth import get_admin_auth
-
-def get_keystone():
-    admin_auth = get_admin_auth()
-    ks = client.Client('3', session=admin_auth)
-    return ks
+import openstackcheck.auth as osca
 
 @contextmanager
 def get_domain(ctx):
-    domain = ctx.ks.domains.create(cfg.test_domain, description='Temporary domain for smoke test')
+    domain = ctx.admin.create_domain(cfg.test_domain, description='Temporary domain for smoke test')
+    print('Created domain')
     yield domain
-    ctx.ks.domains.delete(domain)
+    ctx.admin.delete_domain(domain.id)
+    print('Deleted domain')
 
 @contextmanager
 def get_project(ctx):
-    proj = ctx.ks.projects.create(cfg.test_project, ctx.domain, description='Temporary project for smoke test')
+    proj = ctx.admin.create_project(cfg.test_project, ctx.domain.id, description='Temporary project for smoke test')
+    print('Created project')
     yield proj
-    ctx.ks.projects.delete(proj)
+    ctx.admin.delete_project(proj.id, ctx.domain.id)
+    print('Deleted project')
 
 @contextmanager
 def get_user(ctx):
     ks = ctx['ks']
     ctx.acquire_res('username', 'test_user')
     ctx.acquire_res('password', secrets.token_urlsafe(16))
-    user = ks.users.create(ctx.username, password=ctx.password, domain=ctx.domain, default_project=ctx.project)
+    user = ctx.admin.create_user(ctx.username, password=ctx.password, domain_id=ctx.domain.id, default_project=ctx.project.id)
     yield user
-    ks.users.delete(user)
+    ctx.admin.delete_user(user.id, ctx.domain.id)
 
-@contextmanager
 def get_auth(ctx):
-    auth = v3.Password(auth_url=cfg.keystone_url,
-        user_id=ctx.user.id,
-        username=ctx.username, password=ctx.password,
-        domain_id=ctx.domain.id, project_id=ctx.project.id)
-    yield auth
+    auth = dict(
+        auth_url=osca.keystone_url,
+        username=ctx.username,
+        password=ctx.password,
+        project_id=ctx.project_id,
+        user_domain_id=ctx.domain_id,
+        project_domain_id=ctx.domain_id,
+    )
+
+    return connection.Connection(auth=auth, identity_interface='public')
