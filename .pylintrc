@@ -1,0 +1,61 @@
+[MASTER]
+
+jobs=1
+
+unsafe-load-any-extension=yes
+
+[REPORTS]
+
+#output-format=jsonextended
+
+[STRING]
+
+check-quote-consistency=yes
+
+[FORMAT]
+
+single-line-if-stmt=yes
+
+[CLASSES]
+
+defining-attr-methods=__init__,
+                      __new__,
+                      setUp,
+                      __post_init__,
+		      __enter__
+
+[TYPECHECK]
+
+generated-members=torch.*
+
+[VARIABLES]
+
+allowed-redefined-builtins=id,hash
+
+[MESSAGES CONTROL]
+
+disable=C,
+	global-statement,
+	wildcard-import,
+	unused-wildcard-import,
+	bare-except,
+	broad-except,
+	logging-fstring-interpolation,
+	logging-format-interpolation,
+	no-else-return,
+	no-else-continue,
+	too-few-public-methods,
+	too-many-arguments,
+	too-many-branches,
+	too-many-locals,
+	fixme,
+	duplicate-code
+# TODO: enable duplicate-code
+
+enable=trailing-newlines,
+	trailing-whitespace,
+	missing-final-newline,
+	superfluous-parens,
+	wrong-import-order,
+	ungrouped-imports,
+	consider-using-enumerate
