@@ -11,6 +11,8 @@ def get_nova(ctx):
 @contextmanager
 def get_keypair(ctx):
     key = ctx.acquire('keypair', RSAKey.generate(4096))
-    keypair = ctx.nova.keypairs.create('ssh_key', public_key=key.get_base64())
+    keypair = ctx.auth.create_keypair('ssh_key', public_key=key.get_base64())
+    print('Created keypair', keypair.id)
     yield keypair
-    ctx.nova.keypairs.delete(keypair)
+    ctx.auth.delete_keypair(keypair.id)
+    print('Deleted keypair', keypair.id)
