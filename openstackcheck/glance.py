@@ -4,8 +4,6 @@ from openstackcheck.config import env
 
 image_id = env.str('GLANCE_IMAGE_ID', None)
 
-image_id = 'ad4108df-d769-45ca-b5cf-b3cdc04be045'
-
 def get_image_id(ctx):
     image_id = None
     if image_id:

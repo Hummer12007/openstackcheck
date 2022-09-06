@@ -11,3 +11,4 @@ class BaseContext(ExitStack):
         if exit_cb:
             self.callback(exit_cb, res)
         self.callback(lambda: delattr(self, name))
+        return res

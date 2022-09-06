@@ -30,8 +30,7 @@ class OSCContext(BaseContext):
 
     volume: ob.volume.Volume
 
-    keypair: paramiko.RSAKey
-    nova_keypair: oc.keypair.Keypair
+    keypair: oc.keypair.Keypair
 
 
 def do_tests(ctx):
@@ -45,11 +44,9 @@ def do_tests(ctx):
     image_id = ctx.acquire_res('image_id', gl.get_image_id(ctx))
 
     volume = ctx.acquire('volume', cd.get_volume(ctx))
+    keypair = ctx.acquire('keypair', nv.get_keypair(ctx))
+    image_flavor = ctx.acquire_res('image_flavor', nv.get_image_flavor(ctx))
 
-    return
-
-    nova = ctx.acquire('nova', nv.get_nova(ctx))
-    nova_keypair = ctx.acquire('nova_keypair', nv.get_keypair(ctx))
 
 def main():
     with BaseContext() as ctx:
