@@ -13,8 +13,8 @@ setup(
     license = "MIT",
     keywords = "openstack",
     packages=['openstackcheck'],
-    install_requires=['keystoneauth1', 'python-keystoneclient', 'python-cinderclient', 'python-novaclient', 'python-neutronclient', 'environs', 'fabric'],
-    long_description=read('README'),
+    install_requires=['openstacksdk', 'paramiko', 'environs'],
+    #long_description=read('README'),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
