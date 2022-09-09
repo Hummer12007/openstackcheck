@@ -1,13 +1,11 @@
-from glanceclient import client
-
 from openstackcheck.config import env
 
-image_id = env.str('GLANCE_IMAGE_ID', None)
+glance_image_id = env.str('GLANCE_IMAGE_ID', None)
 
 def get_image_id(ctx):
     image_id = None
-    if image_id:
-        image_id = ctx.auth.get_image(image_id).id
+    if glance_image_id:
+        image_id = ctx.auth.get_image(glance_image_id).id
     else:
         images = list(ctx.auth.list_images())
         if images:

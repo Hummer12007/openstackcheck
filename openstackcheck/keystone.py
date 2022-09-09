@@ -1,5 +1,4 @@
 import secrets
-import traceback
 
 from contextlib import contextmanager
 
