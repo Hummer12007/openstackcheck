@@ -3,7 +3,7 @@ from contextlib import contextmanager
 @contextmanager
 def get_router(ctx):
     pubnet = ctx.auth.get_network('public')
-    router = ctx.auth.create_router('smoke_check_router', ext_gateway_net_id=pubnet.id)
+    router = ctx.auth.create_router('smokecheckrouter', ext_gateway_net_id=pubnet.id)
     print('Created router', router.id)
     yield router
     ctx.auth.network.delete_router(router.id)
