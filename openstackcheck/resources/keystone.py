@@ -5,7 +5,6 @@ from contextlib import contextmanager
 from openstack import connection
 
 import openstackcheck.config as cfg
-import openstackcheck.auth as osca
 
 @contextmanager
 def get_domain(ctx):
@@ -37,7 +36,7 @@ def get_user(ctx):
 
 def get_auth(ctx):
     auth = dict(
-        auth_url=osca.keystone_url,
+        auth_url=cfg.keystone_url,
         username=ctx.username,
         password=ctx.password,
         project_id=ctx.project.id,

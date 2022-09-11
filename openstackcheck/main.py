@@ -1,4 +1,3 @@
-import os
 import json
 import socket
 import traceback
@@ -9,19 +8,19 @@ import paramiko
 
 import openstack.connection as osc
 
-import openstack.identity.v3 as oi
-import openstack.block_storage.v3 as ob
 import openstack.compute.v2 as oc
 import openstack.network.v2 as on
+import openstack.identity.v3 as oi
+import openstack.block_storage.v3 as ob
 
-import openstackcheck.nova as nv
-import openstackcheck.glance as gl
-import openstackcheck.keystone as ks
-import openstackcheck.cinder as cd
-import openstackcheck.neutron as nt
 import openstackcheck.config as cfg
+import openstackcheck.resources.nova as nv
+import openstackcheck.resources.glance as gl
+import openstackcheck.resources.cinder as cd
+import openstackcheck.resources.neutron as nt
+import openstackcheck.resources.keystone as ks
 
-from openstackcheck.auth import get_admin_auth
+from openstackcheck.resources.auth import get_admin_auth
 from openstackcheck.base import BaseContext
 
 class OSCContext(BaseContext):

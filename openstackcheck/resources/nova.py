@@ -49,4 +49,3 @@ def get_server_sg(ctx):
     yield None
     ctx.auth.compute.remove_security_group_from_server(ctx.server.id, ctx.sg)
     print('Removed security group', ctx.sg.id, 'from server', ctx.server.id)
-
