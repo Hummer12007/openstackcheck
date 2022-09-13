@@ -1,18 +1,20 @@
-from .ctx import context
 from openstackcheck.config import env
+from .ctx import context
 
 neutron_external_net = env.str('NEUTRON_EXTERNAL_NET', 'public')
 
-@context
+@context('Neutron: router setup')
 def get_router(ctx):
     pubnet = ctx.auth.get_network(neutron_external_net)
+    if not pubnet:
+        raise ValueError(f'Public network {neutron_external_net} not found')
     router = ctx.auth.create_router('smokecheckrouter', ext_gateway_net_id=pubnet.id)
     print('Created router', router.id)
     yield router
     ctx.auth.network.delete_router(router.id)
     print('Deleted router', router.id)
 
-@context
+@context('Neutron: network setup')
 def get_network(ctx):
     net = ctx.auth.network.create_network(name='smokechecknet')
     print('Created network', net.id)
@@ -20,7 +22,7 @@ def get_network(ctx):
     ctx.auth.network.delete_network(net)
     print('Deleted network', net.id)
 
-@context
+@context('Neutron: subnet setup')
 def get_subnet(ctx):
     subnet = ctx.auth.network.create_subnet(name='smokechecksubnet', network_id=ctx.network.id, ip_version='4', cidr='10.238.0.0/24', gateway_ip='10.238.0.254')
     print('Created subnet', subnet.id)
@@ -28,7 +30,7 @@ def get_subnet(ctx):
     ctx.auth.network.delete_subnet(subnet)
     print('Deleted subnet', subnet.id)
 
-@context
+@context('Neutron: interface setup')
 def get_interface(ctx):
     ctx.auth.network.add_interface_to_router(ctx.router, ctx.subnet.id)
     print('Bound interface to router', ctx.router.id)
@@ -36,7 +38,7 @@ def get_interface(ctx):
     ctx.auth.network.remove_interface_from_router(ctx.router, ctx.subnet.id)
     print('Unbound interface from router', ctx.router.id)
 
-@context
+@context('Neutron: floating IP setup')
 def get_floating_ip(ctx):
     ip = ctx.auth.available_floating_ip()
     print('Allocated ip', ip.floating_ip_address)
@@ -44,7 +46,7 @@ def get_floating_ip(ctx):
     ctx.auth.delete_floating_ip(ip.id)
     print('Deleted ip', ip.floating_ip_address)
 
-@context
+@context('Neutron: security group setup')
 def get_sg(ctx):
     sg = ctx.auth.network.create_security_group(name='openstackchecksg')
     rule = ctx.auth.network.create_security_group_rule(

@@ -1,9 +1,10 @@
-from .ctx import resource
 from openstackcheck.config import env
+
+from .ctx import resource
 
 glance_image = env.str('GLANCE_IMAGE', None)
 
-@resource
+@resource('Glance: image lookup')
 def get_image(ctx):
     image = None
     if glance_image:

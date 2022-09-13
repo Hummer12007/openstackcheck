@@ -1,12 +1,11 @@
 import secrets
 
-from .ctx import context, resource
-
 from openstack import connection
 
 import openstackcheck.config as cfg
+from .ctx import context, resource
 
-@context
+@context('Keystone: domain setup')
 def get_domain(ctx):
     domain = ctx.admin.create_domain(cfg.test_domain, description='Temporary domain for smoke test')
     print('Created domain', domain.id)
@@ -14,15 +13,16 @@ def get_domain(ctx):
     ctx.admin.delete_domain(domain.id)
     print('Deleted domain', domain.id)
 
-@context
+@context('Keystone: project setup')
 def get_project(ctx):
     proj = ctx.admin.create_project(cfg.test_project, ctx.domain.id, description='Temporary project for smoke test')
     print('Created project', proj.id)
     yield proj
     ctx.admin.delete_project(proj.id, ctx.domain.id)
     print('Deleted project', proj.id)
+    raise Exception('Fail')
 
-@context
+@context('Keystone: user setup')
 def get_user(ctx):
     ctx.acquire_res('username', 'test_user')
     ctx.acquire_res('password', secrets.token_urlsafe(16))
@@ -34,7 +34,7 @@ def get_user(ctx):
     ctx.admin.delete_user(user.id)
     print('Deleted user', user.id)
 
-@resource
+@resource('Keystone: session for new user')
 def get_auth(ctx):
     auth = dict(
         auth_url=cfg.keystone_url,

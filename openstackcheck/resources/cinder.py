@@ -2,7 +2,7 @@ import math
 
 from .ctx import context
 
-@context
+@context('Cinder: volume setup')
 def get_volume(ctx):
     size = math.ceil(ctx.image.size / (1024**3)) + ctx.image.min_disk + 1
     volume = ctx.auth.create_volume(size, image=ctx.image.id)

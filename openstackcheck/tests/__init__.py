@@ -33,7 +33,7 @@ def check_ssh(ctx):
 
     return True
 
-@test
+@test('Testing SSH connectivity with security groups')
 def test_ssh_security(ctx):
     print('Checking ssh connectivity doesn\'t work')
     if check_ssh(ctx):
