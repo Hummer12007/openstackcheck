@@ -1,19 +1,21 @@
+from .ctx import resource
 from openstackcheck.config import env
 
-glance_image_id = env.str('GLANCE_IMAGE_ID', None)
+glance_image = env.str('GLANCE_IMAGE', None)
 
-def get_image_id(ctx):
-    image_id = None
-    if glance_image_id:
-        image_id = ctx.auth.get_image(glance_image_id).id
+@resource
+def get_image(ctx):
+    image = None
+    if glance_image:
+        image = ctx.auth.get_image(glance_image)
     else:
         images = list(ctx.auth.list_images())
         if images:
-            image_id = images[0].id
+            image = images[0]
 
-    if not image_id:
+    if not image:
         raise ValueError('Glance image not found')
 
-    print('Found image', image_id)
+    print('Found image', image.id)
 
-    return image_id
+    return image

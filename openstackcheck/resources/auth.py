@@ -1,5 +1,6 @@
 from openstack import connection
 
+from .ctx import resource
 from openstackcheck.config import env, keystone_url
 
 # Keystone admin credentials
@@ -13,6 +14,7 @@ keystone_project = env.str('KEYSTONE_ADMIN_PROJECT')
 keystone_user_domain = env.str('KEYSTONE_USER_DOMAIN', None)
 keystone_project_domain = env.str('KEYSTONE_PROJECT_DOMAIN', None)
 
+@resource
 def get_admin_auth():
     auth = dict(auth_url=keystone_url, project_id=keystone_project)
     if keystone_user_domain:

@@ -1,27 +1,23 @@
-import json
-import socket
-import traceback
-
-from io import StringIO
-
-import paramiko
-
 import openstack.connection as osc
 
+import openstack.image.v2 as og
 import openstack.compute.v2 as oc
 import openstack.network.v2 as on
 import openstack.identity.v3 as oi
 import openstack.block_storage.v3 as ob
 
-import openstackcheck.config as cfg
 import openstackcheck.resources.nova as nv
 import openstackcheck.resources.glance as gl
 import openstackcheck.resources.cinder as cd
 import openstackcheck.resources.neutron as nt
 import openstackcheck.resources.keystone as ks
 
+from openstackcheck import tests, OSCInvariantError
+
 from openstackcheck.resources.auth import get_admin_auth
-from openstackcheck.base import BaseContext
+from openstackcheck.util.slack import slack_report
+from openstackcheck.util.base_ctx import BaseContext
+from openstackcheck.util.error_ctx import log_error, ErrorType, error_stack
 
 class OSCContext(BaseContext):
     admin: osc.Connection
@@ -39,7 +35,7 @@ class OSCContext(BaseContext):
     subnet: on.subnet.Subnet
     interface: None
 
-    image_id: str
+    image: og.image.Image
     volume: ob.volume.Volume
 
     flavor: int
@@ -54,7 +50,7 @@ class OSCContext(BaseContext):
     server_sg: None
 
 
-def do_tests(ctx):
+def initial_setup(ctx):
     ctx.acquire_res('admin', get_admin_auth())
 
     domain = ctx.acquire('domain', ks.get_domain(ctx))
@@ -67,7 +63,7 @@ def do_tests(ctx):
     subnet = ctx.acquire('subnet', nt.get_subnet(ctx))
     interface = ctx.acquire('interface', nt.get_interface(ctx))
 
-    image_id = ctx.acquire_res('image_id', gl.get_image_id(ctx))
+    image = ctx.acquire_res('image', gl.get_image(ctx))
     volume = ctx.acquire('volume', cd.get_volume(ctx))
 
     keypair = ctx.acquire('keypair', nv.get_keypair(ctx))
@@ -79,48 +75,27 @@ def do_tests(ctx):
 
     sg = ctx.acquire('sg', nt.get_sg(ctx))
 
-    print('Checking ssh connectivity doesn\'t work')
-    if check_ssh(ctx):
-        raise Exception('SSH was not supposed to work, but it worked')
+    print('Setup complete')
 
-    server_sg = ctx.acquire('server_sg', nv.get_server_sg(ctx))
-
-    print('Checking ssh connectivity works')
-    if not check_ssh(ctx):
-        raise Exception('SSH was supposed to work, but it didn\'t')
-
-    print('SUCCESS! Everything is working')
-
-def check_ssh(ctx):
-    pkey = paramiko.RSAKey.from_private_key(StringIO(ctx.keypair.private_key))
-
-    username = cfg.env.str('NOVA_SERVER_USERNAME', 'root')
-
-    try:
-        with paramiko.SSHClient() as ssh:
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(ctx.floating_ip.floating_ip_address,
-                    username=username, pkey=pkey,
-                    timeout=5,
-                    # workaround for dropbear
-                    disabled_algorithms = {'pubkeys':['rsa-sha2-512','rsa-sha2-256']})
-            _, out, __ = ssh.exec_command('curl http://169.254.169.254/openstack/latest/meta_data.json', timeout=10)
-            meta = json.load(out)
-            if meta['name'] != nv.DEFAULT_SERVER_NAME:
-                raise ValueError('Invalid server name in metadata.json')
-    except socket.error:
-        return False
-
-    return True
-
+def do_tests(ctx):
+    tests.test_ssh_security(ctx)
 
 def main():
-    with BaseContext() as ctx:
-        try:
+    try:
+        error_stack.clear()
+        with BaseContext() as ctx:
+            initial_setup(ctx)
             do_tests(ctx)
-        except:
-            print('An error occured, cleaning up')
-            print(traceback.format_exc())
+    except OSCInvariantError:
+        print('An invariant violation occured')
+        log_error(ErrorType.TEST)
+    except:
+        print('An error occured during setup')
+        log_error()
+    if error_stack:
+        slack_report(error_stack)
+    else:
+        print('Success!')
 
 if __name__ == '__main__':
     main()

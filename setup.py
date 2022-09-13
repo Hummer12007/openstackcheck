@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import find_packages, setup
 
 def readfile(fname):
 	with open(os.path.join(os.path.dirname(__file__), fname)) as f: return f.read()
@@ -12,9 +12,12 @@ setup(
     description = "Smoke tests for OpenStack deployments",
     license = "MIT",
     keywords = "openstack",
-    packages=['openstackcheck'],
-    install_requires=['openstacksdk', 'paramiko', 'environs'],
-    #long_description=read('README'),
+    packages=find_packages(),
+    install_requires=['openstacksdk', 'paramiko', 'environs', 'requests'],
+    long_description=readfile('README'),
+    entry_points={
+        'console_scripts': ['openstackcheck = openstackcheck.main:main'],
+    },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",

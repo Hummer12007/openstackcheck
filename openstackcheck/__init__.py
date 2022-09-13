@@ -1,0 +1,2 @@
+class OSCInvariantError(Exception):
+    pass
