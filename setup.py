@@ -14,7 +14,7 @@ setup(
     keywords = "openstack",
     packages=find_packages(),
     install_requires=['openstacksdk', 'paramiko', 'environs', 'requests'],
-    long_description=readfile('README'),
+    long_description=readfile('README.md'),
     entry_points={
         'console_scripts': ['openstackcheck = openstackcheck.main:main'],
     },
