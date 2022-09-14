@@ -12,12 +12,12 @@ import openstackcheck.resources.cinder as cd
 import openstackcheck.resources.neutron as nt
 import openstackcheck.resources.keystone as ks
 
-from openstackcheck import tests, OSCInvariantError
+from openstackcheck import tests
 
 from openstackcheck.resources.auth import get_admin_auth
 from openstackcheck.util.slack import slack_report
+from openstackcheck.util.ctx import ContextType, HandledException, log_error, error_stack
 from openstackcheck.util.base_ctx import BaseContext
-from openstackcheck.util.error_ctx import log_error, ErrorType, error_stack
 
 class OSCContext(BaseContext):
     admin: osc.Connection
@@ -86,13 +86,12 @@ def main():
         with BaseContext() as ctx:
             initial_setup(ctx)
             do_tests(ctx)
-    except OSCInvariantError:
-        print('An invariant violation occured')
-        log_error(ErrorType.TEST)
+    except HandledException as e:
+        pass
     except:
-        print('An error occured during setup')
-        log_error()
+        log_error(ContextType.UNKNOWN)
     if error_stack:
+        print('Something went wrong')
         slack_report(error_stack)
     else:
         print('Success!')

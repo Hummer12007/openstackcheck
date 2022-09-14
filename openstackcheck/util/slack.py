@@ -16,7 +16,7 @@ def slack_report(error_stack):
     }
 
     for error in error_stack:
-        description = f'{error.error_type.value} error for {"test" if error.error_type.value == "Test" else "resource"} *{error.resource}*:\n`{error.exception.__class__.__name__}`: {error.exception}\n```{error.traceback}```'
+        description = f'{error.context.type.value} error for {"test" if error.context.type.value == "Test" else "resource"} *{error.context.resource}{f" ({error.context.description})" if error.context.description else ""}*:\n`{error.exception.__class__.__name__}`: {error.exception}\n```{error.traceback}```'
         error_message['blocks'].append({
             'type': 'section',
             'text': {'type': 'mrkdwn', 'text': description}

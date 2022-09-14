@@ -20,7 +20,6 @@ def get_project(ctx):
     yield proj
     ctx.admin.delete_project(proj.id, ctx.domain.id)
     print('Deleted project', proj.id)
-    raise Exception('Fail')
 
 @context('Keystone: user setup')
 def get_user(ctx):
