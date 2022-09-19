@@ -15,7 +15,7 @@ def get_keypair(ctx):
 def get_flavor(ctx):
     flavor = None
     if nova_flavor:
-        flavor = ctx.auth.get_flavor(flavor)
+        flavor = ctx.auth.get_flavor(nova_flavor)
     else:
         flavor = ctx.auth.get_flavor_by_ram(ctx.image.min_ram)
     if not flavor:
